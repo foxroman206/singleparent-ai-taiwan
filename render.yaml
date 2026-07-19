@@ -1,0 +1,35 @@
+# Render Blueprint
+#
+# 重要：部署到 Render 時，請務必選擇「Blueprint」方式，
+# 不要手動建立 Web Service ——手動設定容易漏掉關鍵設定值，
+# 這正是上一次 404 錯誤的原因。
+#
+# 使用方式：
+# 1. 把整個專案上傳到 GitHub
+# 2. 到 Render.com → New → Blueprint
+# 3. 選擇你的 GitHub 倉庫，Render 會自動讀取這個檔案
+# 4. 確認畫面上顯示「1 web service + 1 database」後按下 Apply
+
+databases:
+  - name: singleparent-db
+    plan: free
+    databaseName: singleparent
+    user: singleparent
+
+services:
+  - type: web
+    name: singleparent-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build && npx prisma migrate deploy
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: singleparent-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: NODE_ENV
+        value: production

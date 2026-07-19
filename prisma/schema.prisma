@@ -1,0 +1,26 @@
+// SingleParent AI Taiwan — Prisma Schema
+// Module 0: Foundation (User model only — 之後每個 Module 會用新的 migration 擴充，
+// 絕不修改已經套用過的 migration，只會新增)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  phone        String   @unique
+  passwordHash String
+  role         String   @default("MEMBER") // MEMBER | ADMIN | MODERATOR
+  city         String?
+  childAgeStage String? // infant | preschool | school
+  isSuspended  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([phone])
+}
